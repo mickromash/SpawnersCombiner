@@ -1,0 +1,21 @@
+Server Bool MRMonstC_ReplaceMonsters = true;
+Server Bool MRMonstC_ReplaceWeapons = false;
+
+Server String MRMonstC_Replace_Zombieman = "";
+Server String MRMonstC_Replace_ShotgunGuy = "";
+Server String MRMonstC_Replace_ChaingunGuy = "";
+Server String MRMonstC_Replace_DoomImp = "";
+Server String MRMonstC_Replace_Demon = "";
+Server String MRMonstC_Replace_Spectre = "";
+Server String MRMonstC_Replace_LostSoul = "";
+Server String MRMonstC_Replace_Cacodemon = "";
+Server String MRMonstC_Replace_PainElemental = "";
+Server String MRMonstC_Replace_Revenant = "";
+Server String MRMonstC_Replace_HellKnight = "";
+Server String MRMonstC_Replace_Fatso = "";
+Server String MRMonstC_Replace_Archvile = "";
+Server String MRMonstC_Replace_Arachnotron = "";
+Server String MRMonstC_Replace_BaronOfHell = "";
+Server String MRMonstC_Replace_CyberDemon = "";
+Server String MRMonstC_Replace_SpiderMasterMind = "";
+Server String MRMonstC_Replace_WolfensteinSS = "";

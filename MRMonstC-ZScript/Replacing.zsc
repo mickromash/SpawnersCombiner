@@ -1,0 +1,33 @@
+Extend Class MRMonstC_Handler
+{
+	Override Void CheckReplacement(ReplaceEvent e)
+	{
+		if(!e.Replacee)Return;
+		
+		Bool OnList = false;
+		For(int i=0;i<ListNames.Size();i++){if(e.Replacee is ListNames[i]){OnList = true;Break;}}
+		if(!OnList)Return;
+		
+		Let CVa = CVar.GetCVar("MRMonstC_Replace_"..e.Replacee.GetClassName());
+		if(!CVa)Return;
+		
+		if(CVa.GetString()=="")Return;
+		
+		String Replace = CVa.GetString();
+		Array<String> ReplaceList;
+		
+		Replace.Split(ReplaceList, " ");
+				
+		Class<Actor> Replacing;
+		
+		Do
+		{
+			Replacing = ReplaceList[Random(0, ReplaceList.Size()-1)];
+		}
+		While(!Replacing)
+		
+		e.Replacement = Replacing;
+		if(e.Replacement == e.Replacee && (Class<Actor>)("MRMonstC_"..CVa.GetString()))e.Replacement = "MRMonstC_"..CVa.GetString();
+		e.IsFinal = True;
+	}
+}

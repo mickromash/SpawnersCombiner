@@ -1,0 +1,79 @@
+Extend Class MRMonstC_Handler
+{
+	Void ReadReplaceables(in out Array<String> Actors, String Data = "MRMonstCList")
+	{
+		Array<String> Files;
+		int LumpNum = 0;
+		While(LumpNum>-1)
+		{
+			int TempLump = Wads.FindLump(Data, LumpNum+1);
+			if(TempLump==-1)Break;
+			else {
+				LumpNum = TempLump;
+				Files.Push(Wads.ReadLump(LumpNum));
+			}
+		}
+				
+		For(int i=0;i<Files.Size();i++){
+			String File = Files[i];
+
+			Lump_ClearComments(File);
+			
+			File.Replace("\r","");
+			
+			Array<String> Lines;
+			File.Split(Lines, "\n");
+			
+			For(int i1=0;i1<Lines.Size();i1++){
+				Class<Actor> Act = Lines[i1];
+				if(Act && ListNames.Find(Lines[i1]) == ListNames.Size()){
+					ListNames.Push(Lines[i1]);
+					Let a = CreateList(Act);
+					Lists.Push(a);
+				}
+			}
+		}
+	}
+	
+	MRMonstC_Replace CreateList(Class<Actor> Act)
+	{
+		MRMonstC_Replace List = New('MRMonstC_Replace');
+		List.Replaceable = Act;
+		
+		For(int i=0;i<AllActorClasses.Size();i++){
+			Let Clas = AllActorClasses[i];
+			
+			if(Actor.GetReplacee(Clas) == Act){
+				List.Replacers.Push(Clas);
+			}
+			else if(Clas is Act){
+				String Nam = Clas.GetClassName();
+				if(Nam.IndexOf("MRMonstC_")<0)List.Replacers.Push(Clas);
+			}
+		}
+		
+		/*For(int i=0;i<List.Replacers.Size();i++){
+			if(List.Replacers[i] is 'RandomSpawner'){
+				Class<RandomSpawner> Spawner = List.Replacers[i].GetClassName();
+				
+				DropItem First, Item;
+				First = GetDefaultByType(Spawner).GetDropItems();
+				Item = First.Next;
+				Class<Actor> mo;
+				
+				if(First.Name && (class<Actor>)(First.Name)){
+					List.Actors.Push((class<Actor>)(First.Name));
+				}
+				
+				While(Item && Item!=First){
+					if(Item.Name && (mo = (Class<Actor>)(Item.Name))){
+						List.Actors.Push(mo);
+					}
+					Item = Item.Next;
+				}
+			}
+			else List.Actors.Push(List.Replacers[i]);
+		}*/
+		Return List;
+	}
+}

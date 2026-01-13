@@ -1,0 +1,13 @@
+[en eng enu default]
+
+MRMonstC_ReplaceeOptionMenu = "Set monsters replacement";
+MRMonstC_Menu_Repalce = "Choose %s replacement";
+MRMonstC_Menu_Reset = "Set default";
+MRMonstC_Menu_OtherLists = "Other monsters";
+
+[ru]
+
+MRMonstC_ReplaceeOptionMenu = "Настроить замену монстров";
+MRMonstC_Menu_Repalce = "Выберите замену %s";
+MRMonstC_Menu_Reset = "По умолчанию";
+MRMonstC_Menu_OtherLists = "Другие монстры";

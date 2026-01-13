@@ -1,0 +1,16 @@
+AddOptionMenu "OptionsMenu"
+{
+	StaticText "Monster Combiner"
+	SubMenu "$MRMonstC_ReplaceeOptionMenu", "MRMonstC_ReplaceeOptionMenu"
+}
+
+OptionMenu "MRMonstC_ReplaceeOptionMenu"
+{
+	Class MRMonstC_ReplaceeOptionMenu
+	Title "$MRMonstC_ReplaceeOptionMenu"
+}
+
+OptionMenu "MRMonstC_ReplacementOptionMenu"
+{
+	Class MRMonstC_ReplacementOptionMenu
+}

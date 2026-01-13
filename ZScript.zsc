@@ -1,0 +1,47 @@
+Version "4.10"
+
+Class MRMonstC_Replace: Object Play
+{
+	Class<Actor> Replaceable;
+	Array< Class<Actor> > Replacers;
+	Array< Class<Actor> > Actors;
+}
+
+Class MRMonstC_Handler: StaticEventHandler
+{
+	Array<MRMonstC_Replace> Lists;
+	Array<String> ListNames;
+	
+	Override Void OnRegister()
+	{
+		Array<String> Actors;
+		
+		ReadReplaceables(Actors, "MRMonstCList");
+	}
+	
+	
+	Void Lump_ClearComments(in out string Lump)
+	{
+		While(Lump.IndexOf(MRMonstCCommLine)>-1){
+			int Start = Lump.IndexOf(MRMonstCCommLine);
+			String Temp = Lump.Mid(Start);
+			int End = Temp.IndexOf("\n")+Start;
+			Lump = Lump.Left(Start)..Lump.Mid(End);
+		}
+			
+		While(Lump.IndexOf(MRMonstCCommStart)>-1){
+			int Start = Lump.IndexOf(MRMonstCCommStart);
+			int End = Lump.IndexOf(MRMonstCCommEnd);
+			Lump = Lump.Left(Start)..Lump.Mid(End+2);
+		}
+	}
+}
+
+#include "MRMonstC-ZScript/SetUpLists.zsc"
+#include "MRMonstC-ZScript/Replacing.zsc"
+#include "MRMonstC-ZScript/Menu.zsc"
+#include "MRMonstC-ZScript/Monsters.zsc"
+
+Const MRMonstCCommLine = "//";
+Const MRMonstCCommStart = "/*";
+Const MRMonstCCommEnd = "*/";
