@@ -46,6 +46,7 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 	{
 		Super.Init(Parent, Desc);
 		mDesc.mSelectedItem = 0;
+		mDesc.Reset();
 		mDesc.mItems.Clear();
 		Let Handler = MRMonstC_Handler(StaticEventHandler.Find("MRMonstC_Handler"));
 		if(!Handler)Return;
