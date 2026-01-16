@@ -4,30 +4,41 @@ Extend Class MRMonstC_Handler
 	{
 		if(!e.Replacee)Return;
 		
-		Bool OnList = false;
-		For(int i=0;i<ListNames.Size();i++){if(e.Replacee is ListNames[i]){OnList = true;Break;}}
-		if(!OnList)Return;
+		Int OnList = -1;
+		For(int i=0;i<ListNames.Size();i++){if(e.Replacee is ListNames[i]){OnList = i;Break;}}
+		if(OnList<0)Return;
 		
-		Let CVa = CVar.GetCVar("MRMonstC_Replace_"..e.Replacee.GetClassName());
-		if(!CVa)Return;
+		If(Lists[OnList].Spawning.Size()<1)Return;
 		
-		if(CVa.GetString()=="")Return;
-		
-		String Replace = CVa.GetString();
-		Array<String> ReplaceList;
-		
-		Replace.Split(ReplaceList, " ");
-				
-		Class<Actor> Replacing;
-		
-		Do
-		{
-			Replacing = ReplaceList[Random(0, ReplaceList.Size()-1)];
-		}
-		While(!Replacing)
-		
-		e.Replacement = Replacing;
-		if(e.Replacement == e.Replacee && (Class<Actor>)("MRMonstC_"..CVa.GetString()))e.Replacement = "MRMonstC_"..CVa.GetString();
+		e.Replacement = Lists[OnList].Spawning[Random(0, Lists[OnList].Spawning.Size()-1)];
+		if(e.Replacement == e.Replacee && (Class<Actor>)("MRMonstC_"..e.Replacee.GetClassName()))e.Replacement = "MRMonstC_"..e.Replacee.GetClassName();
+		Console.Printf("Replace: "..e.Replacement.GetClassName());
 		e.IsFinal = True;
+	}
+	
+	Override Void WorldLoaded(WorldEvent e)
+	{
+		SetUpSpawnLists();
+	}
+	
+	Void SetUpSpawnLists()
+	{
+		For(int i=0;i<Lists.Size();i++){
+			Lists[i].Spawning.Clear();
+			If(!Lists[i].Replaceable)Continue;
+			Let CVa = CVar.GetCVar("MRMonstC_Replace_"..Lists[i].Replaceable.GetClassName());
+			If(!CVa||CVa.GetString()=="")Continue;
+			
+			String CVaS = CVa.GetString();
+			
+			Array<String> Names;
+			CVaS.Split(Names, " ");
+			
+			For(int i1=0;i1<Names.Size();i1++){
+				Class<Actor> Check = Names[i1];
+				If(Check)Lists[i].Spawning.Push(Check);
+			}
+			
+		}
 	}
 }
