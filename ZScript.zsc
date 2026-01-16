@@ -5,6 +5,7 @@ Class MRMonstC_Replace: Object Play
 	Class<Actor> Replaceable;
 	Array< Class<Actor> > Replacers;
 	Array< Class<Actor> > Actors;
+	Array< Class<Actor> > Spawning;
 }
 
 Class MRMonstC_Handler: StaticEventHandler
