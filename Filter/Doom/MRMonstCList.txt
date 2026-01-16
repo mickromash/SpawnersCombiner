@@ -1,4 +1,4 @@
-Zombieman
+ZombieMan
 ShotgunGuy
 ChaingunGuy
 DoomImp

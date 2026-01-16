@@ -20,6 +20,25 @@ Class MRMonstC_Handler: StaticEventHandler
 		ReadReplaceables(Actors, "MRMonstCList");
 	}
 	
+	Override Void WorldLoaded(WorldEvent e)
+	{
+		Bool Updated = false;
+		For(int i=0;i<Lists.Size();i++){
+			Let CVa = CVar.GetCVar("MRMonstC_Replace_"..Lists[i].Replaceable.GetClassName());
+			if(!CVa)Continue;
+			
+			if(CVa.GetString().IndexOf(" ")<0)Continue;
+			
+			CVa.SetString("");
+			Updated = true;
+		}
+		
+		if(Updated){
+			Console.printf(StringTable.Localize("$MRMonstC_UpdateMessage"));
+			S_StartSound("dog/active", CHAN_AUTO);
+		}
+	}
+	
 	
 	Void Lump_ClearComments(in out string Lump)
 	{

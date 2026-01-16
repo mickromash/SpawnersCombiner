@@ -48,7 +48,8 @@ Extend Class MRMonstC_Handler
 			}
 			else if(Clas is Act){
 				String Nam = Clas.GetClassName();
-				if(Nam.IndexOf("MRMonstC_")<0)List.Replacers.Push(Clas);
+				Nam = Nam.MakeLower();
+				if(Nam.IndexOf("mrmonstc_")<0 && Nam.IndexOf("dead")!=0)List.Replacers.Push(Clas);
 			}
 		}
 		

@@ -12,11 +12,11 @@ Extend Class MRMonstC_Handler
 		
 		e.Replacement = Lists[OnList].Spawning[Random(0, Lists[OnList].Spawning.Size()-1)];
 		if(e.Replacement == e.Replacee && (Class<Actor>)("MRMonstC_"..e.Replacee.GetClassName()))e.Replacement = "MRMonstC_"..e.Replacee.GetClassName();
-		Console.Printf("Replace: "..e.Replacement.GetClassName());
+
 		e.IsFinal = True;
 	}
 	
-	Override Void WorldLoaded(WorldEvent e)
+	Override Void PlayerEntered(PlayerEvent e)
 	{
 		SetUpSpawnLists();
 	}
@@ -32,7 +32,7 @@ Extend Class MRMonstC_Handler
 			String CVaS = CVa.GetString();
 			
 			Array<String> Names;
-			CVaS.Split(Names, " ");
+			CVaS.Split(Names, ",");
 			
 			For(int i1=0;i1<Names.Size();i1++){
 				Class<Actor> Check = Names[i1];

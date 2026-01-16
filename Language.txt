@@ -3,11 +3,21 @@
 MRMonstC_ReplaceeOptionMenu = "Set monsters replacement";
 MRMonstC_Menu_Repalce = "Choose %s replacement";
 MRMonstC_Menu_Reset = "Set default";
+MRMonstC_Menu_ActivateThisList = "(De)activate this list";
+MRMonstC_Menu_ShowList = "Show list";
+MRMonstC_Menu_HideList = "Hide list:";
 MRMonstC_Menu_OtherLists = "Other monsters";
+
+MRMonstC_UpdateMessage = "\cfMonster Combiner:\c- CVars (settings) handling was changed in the latest update. Because of that, all previously saved settings were reset to prevent error. Sorry for that.";
 
 [ru]
 
 MRMonstC_ReplaceeOptionMenu = "Настроить замену монстров";
 MRMonstC_Menu_Repalce = "Выберите замену %s";
 MRMonstC_Menu_Reset = "По умолчанию";
+MRMonstC_Menu_ActivateThisList = "(Де)активировать этот список";
+MRMonstC_Menu_ShowList = "Показать список";
+MRMonstC_Menu_HideList = "Скрыть список:";
 MRMonstC_Menu_OtherLists = "Другие монстры";
+
+MRMonstC_UpdateMessage = "\cfMonster Combiner:\c- Метод сохранения настроек изменился в последнем обновлении. Из-за этого все прежде сохранённые настройкы были удалены, во избежание ошибок. Сорян.";
