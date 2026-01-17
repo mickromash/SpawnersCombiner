@@ -3,16 +3,17 @@ Extend Class MRMonstC_Handler
 	Override Void CheckReplacement(ReplaceEvent e)
 	{
 		if(!e.Replacee)Return;
-		
+				
 		Int OnList = -1;
-		For(int i=0;i<ListNames.Size();i++){if(e.Replacee is ListNames[i]){OnList = i;Break;}}
+		For(int i=0;i<ListNames.Size();i++){if(e.Replacee.GetClassName() == ListNames[i]){OnList = i;Break;}}
+		//if(OnList<0)For(int i=0;i<ListNames.Size();i++){if(e.Replacee is ListNames[i]){OnList = i;Break;}}
 		if(OnList<0)Return;
-		
-		If(Lists[OnList].Spawning.Size()<1)Return;
+
+		if(Lists[OnList].Spawning.Size()<1)Return;
 		
 		e.Replacement = Lists[OnList].Spawning[Random(0, Lists[OnList].Spawning.Size()-1)];
 		if(e.Replacement == e.Replacee && (Class<Actor>)("MRMonstC_"..e.Replacee.GetClassName()))e.Replacement = "MRMonstC_"..e.Replacee.GetClassName();
-
+				
 		e.IsFinal = True;
 	}
 	
@@ -38,7 +39,6 @@ Extend Class MRMonstC_Handler
 				Class<Actor> Check = Names[i1];
 				If(Check)Lists[i].Spawning.Push(Check);
 			}
-			
 		}
 	}
 }
