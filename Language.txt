@@ -1,23 +1,27 @@
 [en eng enu default]
 
 MRMonstC_ReplaceeOptionMenu = "Set monsters replacement";
+MRMonstC_DisplayAmbush = "Display ambush (stealth) actors";
 MRMonstC_Menu_Repalce = "Choose %s replacement";
 MRMonstC_Menu_Reset = "Set default";
 MRMonstC_Menu_ActivateThisList = "(De)activate this list";
-MRMonstC_Menu_ShowList = "Show list";
-MRMonstC_Menu_HideList = "Hide list:";
+MRMonstC_Menu_ShowList = "\cvShow list    ";
+MRMonstC_Menu_HideList = "\cvHide list:    ";
 MRMonstC_Menu_OtherLists = "Other monsters";
+MRMonstC_Menu_Ambush = "Ambush (stealth) actors:    ";
 
 MRMonstC_UpdateMessage = "\cfMonster Combiner:\c- CVars (settings) handling was changed in the latest update. Because of that, all previously saved settings were reset to prevent error. Sorry for that.";
 
 [ru]
 
 MRMonstC_ReplaceeOptionMenu = "Настроить замену монстров";
+MRMonstC_DisplayAmbush = "Показать стелс акторы";
 MRMonstC_Menu_Repalce = "Выберите замену %s";
 MRMonstC_Menu_Reset = "По умолчанию";
 MRMonstC_Menu_ActivateThisList = "(Де)активировать этот список";
-MRMonstC_Menu_ShowList = "Показать список";
-MRMonstC_Menu_HideList = "Скрыть список:";
+MRMonstC_Menu_ShowList = "\cvПоказать список    ";
+MRMonstC_Menu_HideList = "\cvСкрыть список:    ";
 MRMonstC_Menu_OtherLists = "Другие монстры";
+MRMonstC_Menu_Ambush = "Стесл монстры:    ";
 
 MRMonstC_UpdateMessage = "\cfMonster Combiner:\c- Метод сохранения настроек изменился в последнем обновлении. Из-за этого все прежде сохранённые настройкы были удалены, во избежание ошибок. Сорян.";

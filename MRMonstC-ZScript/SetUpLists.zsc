@@ -1,5 +1,9 @@
 Extend Class MRMonstC_Handler
 {
+	Array<MRMonstC_Replace> Lists, AmbushLists;
+	Array<String> ListNames, AmbushListNames;
+	
+	
 	Void ReadReplaceables(in out Array<String> Actors, String Data = "MRMonstCList")
 	{
 		Array<String> Files;
@@ -30,12 +34,19 @@ Extend Class MRMonstC_Handler
 					ListNames.Push(Lines[i1]);
 					Let a = CreateList(Act);
 					Lists.Push(a);
+					
+					Class<Actor> Ambush = "Stealth"..Lines[i1];
+					if(Ambush){
+						AmbushListNames.Push("Stealth"..Lines[i1]);
+						Let a = CreateList(Act, Ambush);
+						AmbushLists.Push(a);
+					}
 				}
 			}
 		}
 	}
 	
-	MRMonstC_Replace CreateList(Class<Actor> Act)
+	MRMonstC_Replace CreateList(Class<Actor> Act, Class<Actor> Ambush = Null)
 	{
 		MRMonstC_Replace List = New('MRMonstC_Replace');
 		List.Replaceable = Act;
@@ -43,10 +54,24 @@ Extend Class MRMonstC_Handler
 		For(int i=0;i<AllActorClasses.Size();i++){
 			Let Clas = AllActorClasses[i];
 			
+			if(Ambush){
+				if(Actor.GetReplacee(Clas) == Ambush){
+					List.Replacers.Push(Clas);
+				}
+				else if(Clas is Act && (GetDefaultByType(Clas).bStealth || GetDefaultByType(Clas).bAmbush)){
+					String Nam = Clas.GetClassName();
+					Nam = Nam.MakeLower();
+					if(Nam.IndexOf("mrmonstc_")<0 && Nam.IndexOf("dead")!=0)List.Replacers.Push(Clas);
+				}
+				
+				
+				Continue;
+			}
+			
 			if(Actor.GetReplacee(Clas) == Act){
 				List.Replacers.Push(Clas);
 			}
-			else if(Clas is Act){
+			else if(Clas is Act && !GetDefaultByType(Clas).bStealth && !GetDefaultByType(Clas).bAmbush){
 				String Nam = Clas.GetClassName();
 				Nam = Nam.MakeLower();
 				if(Nam.IndexOf("mrmonstc_")<0 && Nam.IndexOf("dead")!=0)List.Replacers.Push(Clas);

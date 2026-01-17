@@ -10,9 +10,6 @@ Class MRMonstC_Replace: Object Play
 
 Class MRMonstC_Handler: StaticEventHandler
 {
-	Array<MRMonstC_Replace> Lists;
-	Array<String> ListNames;
-	
 	Override Void OnRegister()
 	{
 		Array<String> Actors;

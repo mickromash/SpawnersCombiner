@@ -21,6 +21,11 @@ Class MRMonstC_ReplaceeOptionMenu: OptionMenu
 			a.Menue = Self;
 			mDesc.mItems.Push(a);
 		}
+		
+		mDesc.mItems.Push(New('OptionMenuItemStaticText'));
+		Let Temp = New('OptionMenuItemOption');
+		Temp.Init("$MRMonstC_DisplayAmbush", "MRMonstC_DisplayAmbush", "YesNo");
+		mDesc.mItems.Push(Temp);
 	}
 }
 
@@ -82,13 +87,16 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 		if(MRMonstC_ReplaceeOptionMenu(mParentMenu))Index = MRMonstC_ReplaceeOptionMenu(mParentMenu).CurIndex;
 		else Return;
 		
-		Array<MRMonstC_Replace> Lists;
-		Array<String> ListNames;
+		Array<MRMonstC_Replace> Lists, AmbushLists;
+		Array<String> ListNames, AmbushListNames;
 		
 		Lists.Copy(Handler.Lists);
 		ListNames.Copy(Handler.ListNames);
+		AmbushLists.Copy(Handler.AmbushLists);
+		AmbushListNames.Copy(Handler.AmbushListNames);
 		
 		Let List = Lists[Index];
+		Let Ambush = AmbushLists[Index];
 		
 		mDesc.mTitle = String.Format(StringTable.Localize("$MRMonstC_Menu_Repalce"),
 			List.Replaceable?StringTable.Localize(GetDefaultByType(List.Replaceable).GetTag()):ListNames[Index]);
@@ -137,11 +145,39 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 				Temp.Items.Push(a);
 				mDesc.mItems.Push(a);
 			}
+			if(MRMonstC_DisplayAmbush){
+				Text = New('OptionMenuItemStaticText');
+				Text.mLabel = "$MRMonstC_Menu_Ambush";
+				Text.mColor = Font.CR_PURPLE;
+				mDesc.mItems.Push(Text);
+				
+				For(int i=0;i<Ambush.Replacers.Size();i++){
+					OptionMenuItemMRMonstC_ReplacementSelect a = New('OptionMenuItemMRMonstC_ReplacementSelect');
+					a.Replacing = AmbushListNames[Index];
+					a.Who = Ambush.Replacers[i].GetClassName();
+								
+					if(Ambush.Replacers[i]){
+						a.mLabel = GetDefaultByType(Ambush.Replacers[i]).GetTag().." \cd("..a.Who..")";
+						if(!GetDefaultByType(Ambush.Replacers[i]).bIsMonster||Ambush.Replacers[i] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
+						
+						Let CVa = CVar.GetCVar("MRMonstC_Replace_"..a.Replacing);
+						
+						if(CVa && CVa.GetString().IndexOf(a.Who..",")>-1){
+							a.mLabel = "\cf"..a.mLabel;
+						}
+					}
+					
+					Temp.Items.Push(a);
+					mDesc.mItems.Push(a);
+				}
+			}
 			mDesc.mItems.Push(New('OptionMenuItemStaticText'));
 		}
 		
 		Lists.Delete(Index);
 		ListNames.Delete(Index);
+		AmbushLists.Delete(Index);
+		AmbushListNames.Delete(Index);
 		
 		mDesc.mItems.Push(New('OptionMenuItemStaticText'));
 		
@@ -187,6 +223,33 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 				}
 				Temp.Items.Push(a);
 				mDesc.mItems.Push(a);
+			}
+			
+			if(MRMonstC_DisplayAmbush){
+				Text = New('OptionMenuItemStaticText');
+				Text.mLabel = "$MRMonstC_Menu_Ambush";
+				Text.mColor = Font.CR_PURPLE;
+				mDesc.mItems.Push(Text);
+				
+				For(int i1=0;i1<AmbushLists[i].Replacers.Size();i1++){
+					OptionMenuItemMRMonstC_ReplacementSelect a = New('OptionMenuItemMRMonstC_ReplacementSelect');
+					a.Replacing = AmbushListNames[i];
+					a.Who = AmbushLists[i].Replacers[i1].GetClassName();
+								
+					if(AmbushLists[i].Replacers[i1]){
+						a.mLabel = GetDefaultByType(AmbushLists[i].Replacers[i1]).GetTag().." \cd("..a.Who..")";
+						if(!GetDefaultByType(AmbushLists[i].Replacers[i1]).bIsMonster||AmbushLists[i].Replacers[i1] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
+						
+						Let CVa = CVar.GetCVar("MRMonstC_Replace_"..a.Replacing);
+						
+						if(CVa && CVa.GetString().IndexOf(a.Who..",")>-1){
+							a.mLabel = "\cf"..a.mLabel;
+						}
+					}
+					
+					Temp.Items.Push(a);
+					mDesc.mItems.Push(a);
+				}
 			}
 		}
 	}
@@ -243,12 +306,14 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 		Double x = int(120) * CleanXfac + (screen.GetWidth() >> 1);
 		Double y = Screen.GetHeight()*.6;
 		
+		Bool Ambush = GetDefaultByType(Display).bAmbush || GetDefaultByType(Display).bStealth;
+		
 		Screen.DrawTexture(Sprite, false, X, Y,
 			DTA_DestWidthF, Scale.X,
 			DTA_DestHeightF, Scale.Y,
 			DTA_FlipX, Flip,
-			DTA_Alpha, GetDefaultByType(Display).Alpha,
-			DTA_LegacyRenderStyle, GetDefaultByType(Display).GetRenderStyle());
+			DTA_Alpha, Ambush?1:GetDefaultByType(Display).Alpha,
+			DTA_LegacyRenderStyle, Ambush?STYLE_Normal:GetDefaultByType(Display).GetRenderStyle());
 	}
 }
 
