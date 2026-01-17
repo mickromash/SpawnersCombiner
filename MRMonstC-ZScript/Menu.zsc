@@ -96,7 +96,6 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 		AmbushListNames.Copy(Handler.AmbushListNames);
 		
 		Let List = Lists[Index];
-		Let Ambush = AmbushLists[Index];
 		
 		mDesc.mTitle = String.Format(StringTable.Localize("$MRMonstC_Menu_Repalce"),
 			List.Replaceable?StringTable.Localize(GetDefaultByType(List.Replaceable).GetTag()):ListNames[Index]);
@@ -145,7 +144,9 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 				Temp.Items.Push(a);
 				mDesc.mItems.Push(a);
 			}
-			if(MRMonstC_DisplayAmbush){
+			if(MRMonstC_DisplayAmbush && AmbushLists[Index]){
+				Let Ambush = AmbushLists[Index];
+				
 				Text = New('OptionMenuItemStaticText');
 				Text.mLabel = "$MRMonstC_Menu_Ambush";
 				Text.mColor = Font.CR_PURPLE;
@@ -225,7 +226,7 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 				mDesc.mItems.Push(a);
 			}
 			
-			if(MRMonstC_DisplayAmbush){
+			if(MRMonstC_DisplayAmbush && AmbushLists[i]){
 				Text = New('OptionMenuItemStaticText');
 				Text.mLabel = "$MRMonstC_Menu_Ambush";
 				Text.mColor = Font.CR_PURPLE;

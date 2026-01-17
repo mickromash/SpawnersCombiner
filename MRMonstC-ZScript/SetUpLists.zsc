@@ -41,6 +41,10 @@ Extend Class MRMonstC_Handler
 						Let a = CreateList(Act, Ambush);
 						AmbushLists.Push(a);
 					}
+					else {
+						AmbushListNames.Push("None");
+						AmbushLists.Push(Null);
+					}
 				}
 			}
 		}
