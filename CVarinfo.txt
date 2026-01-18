@@ -20,7 +20,25 @@ Server String MRMonstC_Replace_CyberDemon = "";
 Server String MRMonstC_Replace_SpiderMasterMind = "";
 Server String MRMonstC_Replace_WolfensteinSS = "";
 
-User String MRMonstC_Pressets = "";
-
 User bool MRMonstC_DisplayAmbush = false;
 User bool MRMonstC_DisplayMisc = false;
+
+nosave String MRMonstC_PressetNames = "";
+nosave String MRMonstC_Pressets_Zombieman = "";
+nosave String MRMonstC_Pressets_ShotgunGuy = "";
+nosave String MRMonstC_Pressets_ChaingunGuy = "";
+nosave String MRMonstC_Pressets_DoomImp = "";
+nosave String MRMonstC_Pressets_Demon = "";
+nosave String MRMonstC_Pressets_Spectre = "";
+nosave String MRMonstC_Pressets_LostSoul = "";
+nosave String MRMonstC_Pressets_Cacodemon = "";
+nosave String MRMonstC_Pressets_PainElemental = "";
+nosave String MRMonstC_Pressets_Revenant = "";
+nosave String MRMonstC_Pressets_HellKnight = "";
+nosave String MRMonstC_Pressets_Fatso = "";
+nosave String MRMonstC_Pressets_Archvile = "";
+nosave String MRMonstC_Pressets_Arachnotron = "";
+nosave String MRMonstC_Pressets_BaronOfHell = "";
+nosave String MRMonstC_Pressets_CyberDemon = "";
+nosave String MRMonstC_Pressets_SpiderMasterMind = "";
+nosave String MRMonstC_Pressets_WolfensteinSS = "";

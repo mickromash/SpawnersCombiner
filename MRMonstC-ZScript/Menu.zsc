@@ -27,13 +27,15 @@ Class MRMonstC_ReplaceeOptionMenu: OptionMenu
 		Let Temp = New('OptionMenuItemOption');
 		Temp.Init("$MRMonstC_DisplayAmbush", "MRMonstC_DisplayAmbush", "YesNo");
 		mDesc.mItems.Push(Temp);
+		
 		Temp = New('OptionMenuItemOption');
 		Temp.Init("$MRMonstC_DisplayMisc", "MRMonstC_DisplayMisc", "YesNo");
 		mDesc.mItems.Push(Temp);
-		/*mDesc.mItems.Push(New('OptionMenuItemStaticText'));
+		
+		mDesc.mItems.Push(New('OptionMenuItemStaticText'));
 		Let Temp1 = New('OptionMenuItemSubMenu');
 		Temp1.Init("$MRMonstC_PressetsOptionMenu", "MRMonstC_PressetsOptionMenu");
-		mDesc.mItems.Push(Temp1);*/
+		mDesc.mItems.Push(Temp1);
 	}
 }
 

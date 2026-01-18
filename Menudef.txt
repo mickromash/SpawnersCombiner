@@ -15,8 +15,8 @@ OptionMenu "MRMonstC_ReplacementOptionMenu"
 	Class MRMonstC_ReplacementOptionMenu
 }
 
-/*OptionMenu "MRMonstC_PressetsOptionMenu"
+OptionMenu "MRMonstC_PressetsOptionMenu"
 {
 	Class MRMonstC_PressetsOptionMenu
 	Title "$MRMonstC_PressetsOptionMenu"
-}*/
+}

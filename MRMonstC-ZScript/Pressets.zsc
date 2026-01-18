@@ -9,7 +9,6 @@ Class MRMonstC_PressetsOptionMenu: OptionMenu
 	
 	Void UpdatePressets()
 	{
-		Console.Printf("WTF0");
 		mDesc.mItems.Clear();
 		
 		{
@@ -19,21 +18,20 @@ Class MRMonstC_PressetsOptionMenu: OptionMenu
 			mDesc.mItems.Push(Temp);
 		}
 		
-		Console.Printf("WTF1");
-		
-		Let CVa = CVar.FindCVar("MRMonstC_Pressets");
-		if(!CVa)Return;
-		
-		String PressetList = CVa.GetString();
+		mDesc.mItems.Push(New('OptionMenuItemStaticText'));
+				
+		String PressetList = CVar.FindCVar("MRMonstC_PressetNames").GetString();
 		Array<String> Pressets;
 		
-		While(PressetList.Length()>0){
-			Pressets.Push(PressetList.Left(PressetList.IndexOf("}")+1));
-			PressetList = PressetList.Mid(PressetList.IndexOf("}")+1);
-		}
+		PressetList.DeleteLastCharacter();
+		PressetList.Split(Pressets, ",");
 		
 		For(int i=0;i<Pressets.Size();i++){
-			Console.printf(i.." "..Pressets[i].Left(Pressets[i].IndexOf("{"))..": "..Pressets[i].Mid(Pressets[i].IndexOf("{")));
+			Let a = New('OptionMenuItemMRMonstC_Presset');
+			a._Name = Pressets[i];
+			a.Init(Pressets[i], "");
+			a.Menue = Self;
+			mDesc.mItems.Push(a);
 		}
 	}
 }
@@ -75,7 +73,6 @@ Class OptionMenuItemMRMonstC_NewPresset: OptionMenuFieldBase
 
 	override bool MenuEvent (int mkey, bool fromcontroller)
 	{
-		Console.Printf("MenuEvent");
 		if (mkey == Menu.MKEY_Enter)
 		{
 			bool b;
@@ -88,7 +85,6 @@ Class OptionMenuItemMRMonstC_NewPresset: OptionMenuFieldBase
 		}
 		else if (mkey == Menu.MKEY_Input)
 		{
-			Console.Printf("ADDing");
 			AddPresset(mEnter.GetText());
 			mEnter = null;
 			Menue.UpdatePressets();
@@ -109,28 +105,107 @@ Class OptionMenuItemMRMonstC_NewPresset: OptionMenuFieldBase
 		
 		Let Handler = MRMonstC_Handler(StaticEventHandler.Find("MRMonstC_Handler"));
 		if(!Handler)Return;
-		
-		String Presset = PresName.."{";
-		
+				
 		For(int i=0;i<Handler.Lists.Size();i++){
 			Let List = Handler.Lists[i];
 			if(!List.Replaceable)Continue;
 			
 			String Clas = List.Replaceable.GetClassName();
-			if(!CVar.GetCVar("MRMonstC_Replace_"..Clas))Continue;
+			if(!CVar.GetCVar("MRMonstC_Replace_"..Clas) || !CVar.FindCVar("MRMonstC_Pressets_"..Clas))Continue;
 			
 			String CVa = CVar.GetCVar("MRMonstC_Replace_"..Clas).GetString();
+			String Pressets = CVar.FindCVar("MRMonstC_Pressets_"..Clas).GetString();
 			
-			Presset = Presset..Clas.."("..CVa..")";
+			String Presset = PresName.."{"..CVa.."}";
+			
+			if(Pressets.IndexOf(PresName.."{")>-1){
+				String Left, Right;
+				Left = Pressets.Left(Pressets.IndexOf(PresName.."{"));
+				Right = Pressets.Mid(Pressets.IndexOf(PresName.."{"));
+				Right = Right.Mid(Right.IndexOf("}")+1);
+				Pressets = Left..Presset..Right;
+			}
+			else Pressets = Pressets..Presset;
+			
+			CVar.FindCVar("MRMonstC_Pressets_"..Clas).SetString(Pressets);
 		}
-		Presset = Presset.."}";
-		Console.Printf("Presset: "..Presset);
-		Let CVa = CVar.FindCVar("MRMonstC_Pressets");
-		CVa.SetString(CVa.GetString());
-		Console.Printf("Yeto ne cvar");
+		
+		Let CVa = CVar.FindCVar("MRMonstC_PressetNames");
+		
+		if(CVa.GetString().IndexOf(PresName..",")>-1)Return;
+		else CVa.SetString(CVa.GetString()..PresName..",");
 	}
 }
 
 Class OptionMenuItemMRMonstC_Presset: OptionMenuItemSubMenu
 {
+	String _Name;
+	MRMonstC_PressetsOptionMenu Menue;
+	
+	Override Bool Activate()
+	{
+		Let Handler = MRMonstC_Handler(StaticEventHandler.Find("MRMonstC_Handler"));
+		if(!Handler)Return false;
+				
+		For(int i=0;i<Handler.Lists.Size();i++){
+			if(!Handler.Lists[i].Replaceable)Continue;
+			
+			String Clas = Handler.Lists[i].Replaceable.GetClassName();
+			
+			Let Pressets = CVar.FindCVar("MRMonstC_Pressets_"..Clas);
+			if(!Pressets)Continue;
+			
+			String Presset = Pressets.GetString();
+			Presset = Presset.Mid(Presset.IndexOf(_Name.."{"));
+			Presset = Presset.Mid(Presset.IndexOf("{")+1);
+			Presset = Presset.Left(Presset.IndexOf("}"));
+						
+			CVar.GetCVar("MRMonstC_Replace_"..Clas).SetString(Presset);
+		}
+		
+		Menu.MenuSound("menu/change");
+		Return true;
+	}
+	
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		if(mkey != Menu.MKEY_Clear)Return Super.MenuEvent(mkey, fromcontroller);
+		
+		Let Handler = MRMonstC_Handler(StaticEventHandler.Find("MRMonstC_Handler"));
+		if(!Handler)Return false;
+		
+		For(int i=0;i<Handler.Lists.Size();i++)
+		{
+			if(!Handler.Lists[i].Replaceable)Continue;
+			
+			String Clas = Handler.Lists[i].Replaceable.GetClassName();
+			
+			Let Pressets = CVar.FindCVar("MRMonstC_Pressets_"..Clas);
+			if(!Pressets)Continue;
+			
+			String Presset = Pressets.GetString();
+			if(Presset.IndexOf(_Name.."{")<0)Continue;
+			String Left, Right;
+			Left = Presset.Left(Presset.IndexOf(_Name.."{"));
+			Right = Presset.Mid(Presset.IndexOf(_Name.."{"));
+			Right = Right.Mid(Right.Indexof("}")+1);
+			Presset = Left..Right;
+			
+			CVar.GetCVar("MRMonstC_Replace_"..Clas).SetString(Presset);
+		}
+		Let CVa = CVar.FindCVar("MRMonstC_PressetNames");
+		String Pressets = CVa.GetString();
+		
+		Pressets.Replace(_Name..",", "");
+		
+		CVa.SetString(Pressets);
+		
+		Menu.MenuSound("menu/change");
+		
+		Destroy();
+		
+		Menue.UpdatePressets();
+		
+		Return false;
+	}
 }

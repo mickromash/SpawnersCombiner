@@ -49,7 +49,7 @@ Class MRMonstC_Handler: StaticEventHandler
 #include "MRMonstC-ZScript/SetUpLists.zsc"
 #include "MRMonstC-ZScript/Replacing.zsc"
 #include "MRMonstC-ZScript/Menu.zsc"
-//#include "MRMonstC-ZScript/Pressets.zsc"
+#include "MRMonstC-ZScript/Pressets.zsc"
 #include "MRMonstC-ZScript/Monsters.zsc"
 
 Const MRMonstCCommLine = "//";
