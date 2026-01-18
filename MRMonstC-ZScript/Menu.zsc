@@ -1,6 +1,7 @@
 Class MRMonstC_ReplaceeOptionMenu: OptionMenu
 {
 	int CurIndex;
+	Array<int> SelectedItems;
 	Override Void Init(Menu parent, OptionMenuDescriptor desc)
 	{
 		Super.Init(Parent, Desc);
@@ -26,6 +27,13 @@ Class MRMonstC_ReplaceeOptionMenu: OptionMenu
 		Let Temp = New('OptionMenuItemOption');
 		Temp.Init("$MRMonstC_DisplayAmbush", "MRMonstC_DisplayAmbush", "YesNo");
 		mDesc.mItems.Push(Temp);
+		Temp = New('OptionMenuItemOption');
+		Temp.Init("$MRMonstC_DisplayMisc", "MRMonstC_DisplayMisc", "YesNo");
+		mDesc.mItems.Push(Temp);
+		/*mDesc.mItems.Push(New('OptionMenuItemStaticText'));
+		Let Temp1 = New('OptionMenuItemSubMenu');
+		Temp1.Init("$MRMonstC_PressetsOptionMenu", "MRMonstC_PressetsOptionMenu");
+		mDesc.mItems.Push(Temp1);*/
 	}
 }
 
@@ -47,16 +55,42 @@ Class OptionMenuItemMRMonstC_ReplaceeSelect: OptionMenuItemSubmenu
 Class MRMonstC_ReplacementOptionMenu: OptionMenu
 {
 	int Index;
-	Bool Opened[100];
+	Bool Opened[10000];
 	Array<OptionMenuItemMRMonstC_SpoilerList> Spoilers;
 	Override Void Init(Menu parent, OptionMenuDescriptor desc)
 	{
 		Super.Init(Parent, Desc);
-		mDesc.mSelectedItem = 0;
+		if(!mParentMenu)Return;
+		
+		Let Parent = MRMonstC_ReplaceeOptionMenu(mParentMenu);
+		Index = Parent.CurIndex;
+
+		if(Parent.SelectedItems.Size()>Index)mDesc.mSelectedItem = Parent.SelectedItems[Index];
+		else mDesc.mSelectedItem = 0;
+		
 		mDesc.Reset();
 		
 		SetUpSpoilers();
 		UpdateItems();
+	}
+	
+	Override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		switch (mkey)
+		{
+			case MKEY_Back:
+			{
+				Let Parent = MRMonstC_ReplaceeOptionMenu(mParentMenu);
+				if(Parent.SelectedItems.Size()>Index)Parent.SelectedItems[Index] = mDesc.mSelectedItem;
+				else Parent.SelectedItems.Insert(Index, mDesc.mSelectedItem);
+				Close();
+				let m = GetCurrentMenu();
+				MenuSound(m != null ? "menu/backup" : "menu/clear");
+				if (!m) menuDelegate.MenuDismissed();
+				return true;
+			}
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
 	}
 	
 	Void SetUpSpoilers()
@@ -66,15 +100,59 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 		
 		Spoilers.Clear();
 		
-		For(int i=0;i<Handler.Lists.Size();i++){
+		Array<String> Names;
+		For(int i=0;i<Handler.ListNames.Size();i++){
+			if(Handler.Lists[i].Replaceable)Names.Push(StringTable.Localize(GetDefaultByType(Handler.Lists[i].Replaceable).GetTag()));
+			else Names.Push(Handler.ListNames[i]);
+		}
+		
+		int ItemIndex;
+		Let Spoiler = New('OptionMenuItemMRMonstC_SpoilerList');
+		Spoiler.Menue = Self;
+		Spoiler.Index = ItemIndex;
+		Spoiler.Who = Names[Index];
+		Spoiler.Who = "\c-"..Spoiler.Who.MakeUpper();
+		Opened[ItemIndex] = 1;
+	
+		if(Opened[ItemIndex])Spoiler.mLabel = "$MRMonstC_Menu_HideList";
+		else Spoiler.mLabel = "$MRMonstC_Menu_ShowList";
+		Spoiler.mLabel = StringTable.Localize(Spoiler.mLabel)..Spoiler.Who;
+		Spoilers.Push(Spoiler);
+		
+		Names.Delete(Index);
+		
+		ItemIndex++;
+		
+		For(int i=1;i<Handler.Lists.Size();i++){
 			Let Spoiler = New('OptionMenuItemMRMonstC_SpoilerList');
 			Spoiler.Menue = Self;
-			Spoiler.Index = i;
-			Opened[i] = (i>0)?0:1;
+			Spoiler.Index = ItemIndex;
+			Spoiler.Who = Names[i-1];
+			Spoiler.Who = "\c-"..Spoiler.Who.MakeUpper();
+			Opened[ItemIndex] = 0;
 		
-			if(Opened[i])Spoiler.mLabel = StringTable.Localize("$MRMonstC_Menu_HideList");
-			else Spoiler.mLabel = StringTable.Localize("$MRMonstC_Menu_ShowList");
+			if(Opened[ItemIndex])Spoiler.mLabel = "$MRMonstC_Menu_HideList";
+			else Spoiler.mLabel = "$MRMonstC_Menu_ShowList";
+			Spoiler.mLabel = StringTable.Localize(Spoiler.mLabel)..Spoiler.Who;
 			Spoilers.Push(Spoiler);
+			
+			ItemIndex++;
+		}
+		
+		For(int i=0;i<Handler.MiscLists.Size();i++){
+			Let Spoiler = New('OptionMenuItemMRMonstC_SpoilerList');
+			Spoiler.Menue = Self;
+			Spoiler.Index = ItemIndex;
+			Spoiler.Who = Handler.MiscLists[i].Replacers[0].GetClassName();
+			Spoiler.Who = "\c-"..Spoiler.Who;
+			Opened[ItemIndex] = 0;
+		
+			if(Opened[ItemIndex])Spoiler.mLabel = "$MRMonstC_Menu_HideList";
+			else Spoiler.mLabel = "$MRMonstC_Menu_ShowList";
+			Spoiler.mLabel = StringTable.Localize(Spoiler.mLabel)..Spoiler.Who;
+			Spoilers.Push(Spoiler);
+			
+			ItemIndex++;
 		}
 	}
 	
@@ -84,175 +162,115 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 		Let Handler = MRMonstC_Handler(StaticEventHandler.Find("MRMonstC_Handler"));
 		if(!Handler)Return;
 		
-		if(MRMonstC_ReplaceeOptionMenu(mParentMenu))Index = MRMonstC_ReplaceeOptionMenu(mParentMenu).CurIndex;
-		else Return;
-		
 		Array<MRMonstC_Replace> Lists, AmbushLists;
-		Array<String> ListNames, AmbushListNames;
+		String Replacing = Handler.ListNames[Index];
 		
 		Lists.Copy(Handler.Lists);
-		ListNames.Copy(Handler.ListNames);
 		AmbushLists.Copy(Handler.AmbushLists);
-		AmbushListNames.Copy(Handler.AmbushListNames);
 		
 		Let List = Lists[Index];
 		
 		mDesc.mTitle = String.Format(StringTable.Localize("$MRMonstC_Menu_Repalce"),
-			List.Replaceable?StringTable.Localize(GetDefaultByType(List.Replaceable).GetTag()):ListNames[Index]);
+			List.Replaceable?StringTable.Localize(GetDefaultByType(List.Replaceable).GetTag()):Replacing);
 				
 		Let Temp = New('OptionMenuItemMRMonstC_ClearReplaceList');
 		Temp.mLabel = "$MRMonstC_Menu_Reset";
-		Temp.Which = ListNames[Index];
+		Temp.Which = Replacing;
 		Temp.Menue = Self;
 		mDesc.mItems.Push(Temp);
 		
 		mDesc.mItems.Push(New('OptionMenuItemStaticText'));
-		
-		
-		Let Text = New('OptionMenuItemStaticText');
-		if(List.Replaceable)Text.mLabel = StringTable.Localize(GetDefaultByType(List.Replaceable).GetTag()).MakeUpper();
-		else Text.mLabel = ListNames[Index].MakeUpper();
-		Text.mColor = Font.CR_Fire;
-		mDesc.mItems.Push(Text);
-		
-		mDesc.mItems.Push(Spoilers[0]);
-		
-		if(Opened[0]){
-			Let Temp = New('OptionMenuItemMRMonstC_ActivateList');
-			Temp.Menue = Self;
-			Temp.Index = 0;
-			Temp.SetName();
-			mDesc.mItems.Push(Temp);
-			mDesc.mItems.Push(New('OptionMenuItemStaticText'));
-			
-			For(int i=0;i<List.Replacers.Size();i++){
-				OptionMenuItemMRMonstC_ReplacementSelect a = New('OptionMenuItemMRMonstC_ReplacementSelect');
-				a.Replacing = ListNames[Index];
-				a.Who = List.Replacers[i].GetClassName();
-							
-				if(List.Replacers[i]){
-					a.mLabel = GetDefaultByType(List.Replacers[i]).GetTag().." \cd("..a.Who..")";
-					if(!GetDefaultByType(List.Replacers[i]).bIsMonster||List.Replacers[i] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
-					
-					Let CVa = CVar.GetCVar("MRMonstC_Replace_"..a.Replacing);
-					
-					if(CVa && CVa.GetString().IndexOf(a.Who..",")>-1){
-						a.mLabel = "\cf"..a.mLabel;
-					}
-				}
-				
-				Temp.Items.Push(a);
-				mDesc.mItems.Push(a);
-			}
-			if(MRMonstC_DisplayAmbush && AmbushLists[Index]){
-				Let Ambush = AmbushLists[Index];
-				
-				Text = New('OptionMenuItemStaticText');
-				Text.mLabel = "$MRMonstC_Menu_Ambush";
-				Text.mColor = Font.CR_PURPLE;
-				mDesc.mItems.Push(Text);
-				
-				For(int i=0;i<Ambush.Replacers.Size();i++){
-					OptionMenuItemMRMonstC_ReplacementSelect a = New('OptionMenuItemMRMonstC_ReplacementSelect');
-					a.Replacing = AmbushListNames[Index];
-					a.Who = Ambush.Replacers[i].GetClassName();
-								
-					if(Ambush.Replacers[i]){
-						a.mLabel = GetDefaultByType(Ambush.Replacers[i]).GetTag().." \cd("..a.Who..")";
-						if(!GetDefaultByType(Ambush.Replacers[i]).bIsMonster||Ambush.Replacers[i] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
-						
-						Let CVa = CVar.GetCVar("MRMonstC_Replace_"..a.Replacing);
-						
-						if(CVa && CVa.GetString().IndexOf(a.Who..",")>-1){
-							a.mLabel = "\cf"..a.mLabel;
-						}
-					}
-					
-					Temp.Items.Push(a);
-					mDesc.mItems.Push(a);
-				}
-			}
-			mDesc.mItems.Push(New('OptionMenuItemStaticText'));
-		}
+		int ItemIndex = 0;
+		AddList(List, Replacing, ItemIndex, AmbushLists[Index]);
+		ItemIndex++;
 		
 		Lists.Delete(Index);
-		ListNames.Delete(Index);
 		AmbushLists.Delete(Index);
-		AmbushListNames.Delete(Index);
 		
 		mDesc.mItems.Push(New('OptionMenuItemStaticText'));
 		
-		Text = New('OptionMenuItemStaticText');
+		Let Text = New('OptionMenuItemStaticText');
 		Text.mLabel = "$MRMonstC_Menu_OtherLists";
 		Text.mColor = Font.CR_Fire;
 		mDesc.mItems.Push(Text);
 		
 		For(int i=0;i<Lists.Size();i++){
-			mDesc.mItems.Push(New('OptionMenuItemStaticText'));
-			
+			AddList(Lists[i], Replacing, ItemIndex, AmbushLists[i]);
+			ItemIndex++;
+		}
+		
+		if(!CVar.FindCVar("MRMonstC_DisplayMisc").GetBool())Return;
+		
+		Text = New('OptionMenuItemStaticText');
+		Text.mLabel = "$MRMonstC_Menu_MiscLists";
+		Text.mColor = Font.CR_Fire;
+		mDesc.mItems.Push(Text);
+		
+		For(int i=0;i<Handler.MiscLists.Size();i++){
+			AddList(Handler.MiscLists[i], Replacing, ItemIndex);
+			ItemIndex++;
+		}
+	}
+	
+	Void AddList(MRMonstC_Replace List, String ListName, int Index, MRMonstC_Replace AmbushList=Null)
+	{
+		mDesc.mItems.Push(Spoilers[Index]);
+		
+		if(!Opened[Index])Return;
+		
+		Let Temp = New('OptionMenuItemMRMonstC_ActivateList');
+		Temp.Menue = Self;
+		Temp.Index = Index;
+		Temp.SetName();
+		mDesc.mItems.Push(Temp);
+
+		//mDesc.mItems.Push(New('OptionMenuItemStaticText'));
+		
+		For(int i=0;i<List.Replacers.Size();i++){
+			OptionMenuItemMRMonstC_ReplacementSelect a = New('OptionMenuItemMRMonstC_ReplacementSelect');
+			a.Replacing = ListName;
+			a.Who = List.Replacers[i].GetClassName();
+						
+			if(List.Replacers[i]){
+				a.mLabel = GetDefaultByType(List.Replacers[i]).GetTag().." \cd("..List.Replacers[i].GetClassName()..")";
+				if(!GetDefaultByType(List.Replacers[i]).bIsMonster||List.Replacers[i] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
+				Let CVa = CVar.GetCVar("MRMonstC_Replace_"..a.Replacing);
+				
+				if(CVa && CVa.GetString().IndexOf(a.Who..",")>-1){
+					a.mLabel = "\cf"..a.mLabel;
+				}
+			}
+			Temp.Items.Push(a);
+			mDesc.mItems.Push(a);
+		}
+		
+		if(CVar.FindCVar("MRMonstC_DisplayAmbush").GetBool() && AmbushList){
 			Let Text = New('OptionMenuItemStaticText');
-			if(Lists[i].Replaceable)Text.mLabel = StringTable.Localize(GetDefaultByType(Lists[i].Replaceable).GetTag()).MakeUpper();
-			else Text.mLabel = ListNames[i].MakeUpper();
-			Text.mColor = Font.CR_Fire;
+			Text.mLabel = "$MRMonstC_Menu_Ambush";
+			Text.mColor = Font.CR_PURPLE;
 			mDesc.mItems.Push(Text);
 			
-			mDesc.mItems.Push(Spoilers[i+1]);
-			
-			if(!Opened[i+1])Continue;
-			
-			Let Temp = New('OptionMenuItemMRMonstC_ActivateList');
-			Temp.Menue = Self;
-			Temp.Index = i+1;
-			Temp.SetName();
-			mDesc.mItems.Push(Temp);
-
-			mDesc.mItems.Push(New('OptionMenuItemStaticText'));
-			
-			For(int i1=0;i1<Lists[i].Replacers.Size();i1++){
+			For(int i=0;i<AmbushList.Replacers.Size();i++){
 				OptionMenuItemMRMonstC_ReplacementSelect a = New('OptionMenuItemMRMonstC_ReplacementSelect');
-				a.Replacing = Handler.ListNames[Index];
-				a.Who = Lists[i].Replacers[i1].GetClassName();
+				a.Replacing = ListName;
+				a.Who = AmbushList.Replacers[i].GetClassName();
 							
-				if(Lists[i].Replacers[i1]){
-					a.mLabel = GetDefaultByType(Lists[i].Replacers[i1]).GetTag().." \cd("..Lists[i].Replacers[i1].GetClassName()..")";
-					if(!GetDefaultByType(Lists[i].Replacers[i1]).bIsMonster||Lists[i].Replacers[i1] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
+				if(AmbushList.Replacers[i]){
+					a.mLabel = GetDefaultByType(AmbushList.Replacers[i]).GetTag().." \cd("..a.Who..")";
+					if(!GetDefaultByType(AmbushList.Replacers[i]).bIsMonster||AmbushList.Replacers[i] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
+					
 					Let CVa = CVar.GetCVar("MRMonstC_Replace_"..a.Replacing);
 					
 					if(CVa && CVa.GetString().IndexOf(a.Who..",")>-1){
 						a.mLabel = "\cf"..a.mLabel;
 					}
 				}
+				
 				Temp.Items.Push(a);
 				mDesc.mItems.Push(a);
 			}
-			
-			if(MRMonstC_DisplayAmbush && AmbushLists[i]){
-				Text = New('OptionMenuItemStaticText');
-				Text.mLabel = "$MRMonstC_Menu_Ambush";
-				Text.mColor = Font.CR_PURPLE;
-				mDesc.mItems.Push(Text);
-				
-				For(int i1=0;i1<AmbushLists[i].Replacers.Size();i1++){
-					OptionMenuItemMRMonstC_ReplacementSelect a = New('OptionMenuItemMRMonstC_ReplacementSelect');
-					a.Replacing = AmbushListNames[i];
-					a.Who = AmbushLists[i].Replacers[i1].GetClassName();
-								
-					if(AmbushLists[i].Replacers[i1]){
-						a.mLabel = GetDefaultByType(AmbushLists[i].Replacers[i1]).GetTag().." \cd("..a.Who..")";
-						if(!GetDefaultByType(AmbushLists[i].Replacers[i1]).bIsMonster||AmbushLists[i].Replacers[i1] is 'RandomSpawner')a.mLabel = "? "..a.mLabel;
-						
-						Let CVa = CVar.GetCVar("MRMonstC_Replace_"..a.Replacing);
-						
-						if(CVa && CVa.GetString().IndexOf(a.Who..",")>-1){
-							a.mLabel = "\cf"..a.mLabel;
-						}
-					}
-					
-					Temp.Items.Push(a);
-					mDesc.mItems.Push(a);
-				}
-			}
 		}
+		mDesc.mItems.Push(New('OptionMenuItemStaticText'));
 	}
 	
 	Override Void Drawer()
@@ -320,6 +338,7 @@ Class MRMonstC_ReplacementOptionMenu: OptionMenu
 
 Class OptionMenuItemMRMonstC_SpoilerList: OptionMenuItemSubMenu
 {
+	String Who;
 	int Index;
 	MRMonstC_ReplacementOptionMenu Menue;
 		
@@ -332,6 +351,8 @@ Class OptionMenuItemMRMonstC_SpoilerList: OptionMenuItemSubMenu
 		
 		if(Menue.Opened[Index])mLabel = "$MRMonstC_Menu_HideList";
 		else mLabel = "$MRMonstC_Menu_ShowList";
+		
+		mLabel = StringTable.Localize(mLabel)..Who;
 		
 		Menue.UpdateItems();
 		Return True;
@@ -372,12 +393,10 @@ Class OptionMenuItemMRMonstC_ActivateList: OptionMenuItemSubMenu
 			}
 		}
 		
-		
-		
 		else {
-			CVaS = "";
 			For(int i=0;i<Items.Size();i++){
 				Items[i].mLabel.Replace("\cf", "");
+				CVaS.Replace(Items[i].Who..",", "");
 			}
 		}
 		

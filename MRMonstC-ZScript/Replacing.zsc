@@ -3,7 +3,7 @@ Extend Class MRMonstC_Handler
 	Override Void CheckReplacement(ReplaceEvent e)
 	{
 		if(!e.Replacee)Return;
-				
+
 		Int OnList = -1;
 		For(int i=0;i<ListNames.Size();i++){if(e.Replacee.GetClassName() == ListNames[i]){OnList = i;Break;}}
 		//if(OnList<0)For(int i=0;i<ListNames.Size();i++){if(e.Replacee is ListNames[i]){OnList = i;Break;}}
@@ -17,7 +17,7 @@ Extend Class MRMonstC_Handler
 		e.IsFinal = True;
 	}
 	
-	Override Void PlayerEntered(PlayerEvent e)
+	Override Void PlayerSpawned(PlayerEvent e)
 	{
 		SetUpSpawnLists();
 	}
@@ -26,9 +26,9 @@ Extend Class MRMonstC_Handler
 	{
 		For(int i=0;i<Lists.Size();i++){
 			Lists[i].Spawning.Clear();
-			If(!Lists[i].Replaceable)Continue;
+			if(!Lists[i].Replaceable)Continue;
 			Let CVa = CVar.GetCVar("MRMonstC_Replace_"..Lists[i].Replaceable.GetClassName());
-			If(!CVa||CVa.GetString()=="")Continue;
+			if(!CVa||CVa.GetString()=="")Continue;
 			
 			String CVaS = CVa.GetString();
 			
@@ -37,7 +37,7 @@ Extend Class MRMonstC_Handler
 			
 			For(int i1=0;i1<Names.Size();i1++){
 				Class<Actor> Check = Names[i1];
-				If(Check)Lists[i].Spawning.Push(Check);
+				if(Check)Lists[i].Spawning.Push(Check);
 			}
 		}
 	}

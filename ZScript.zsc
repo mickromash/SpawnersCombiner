@@ -1,13 +1,5 @@
 Version "4.10"
 
-Class MRMonstC_Replace: Object Play
-{
-	Class<Actor> Replaceable;
-	Array< Class<Actor> > Replacers;
-	Array< Class<Actor> > Actors;
-	Array< Class<Actor> > Spawning;
-}
-
 Class MRMonstC_Handler: StaticEventHandler
 {
 	Override Void OnRegister()
@@ -57,6 +49,7 @@ Class MRMonstC_Handler: StaticEventHandler
 #include "MRMonstC-ZScript/SetUpLists.zsc"
 #include "MRMonstC-ZScript/Replacing.zsc"
 #include "MRMonstC-ZScript/Menu.zsc"
+//#include "MRMonstC-ZScript/Pressets.zsc"
 #include "MRMonstC-ZScript/Monsters.zsc"
 
 Const MRMonstCCommLine = "//";

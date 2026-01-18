@@ -20,4 +20,7 @@ Server String MRMonstC_Replace_CyberDemon = "";
 Server String MRMonstC_Replace_SpiderMasterMind = "";
 Server String MRMonstC_Replace_WolfensteinSS = "";
 
-Server bool MRMonstC_DisplayAmbush = false;
+User String MRMonstC_Pressets = "";
+
+User bool MRMonstC_DisplayAmbush = false;
+User bool MRMonstC_DisplayMisc = false;
