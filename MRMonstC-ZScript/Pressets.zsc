@@ -1,0 +1,136 @@
+Class MRMonstC_PressetsOptionMenu: OptionMenu
+{
+	Override Void Init(Menu parent, OptionMenuDescriptor desc)
+	{
+		Super.Init(Parent, Desc);
+		
+		UpdatePressets();
+	}
+	
+	Void UpdatePressets()
+	{
+		Console.Printf("WTF0");
+		mDesc.mItems.Clear();
+		
+		{
+			Let Temp = New('OptionMenuItemMRMonstC_NewPresset');
+			Temp.Init("$MRMonstC_NewPresset", "");
+			Temp.Menue = Self;
+			mDesc.mItems.Push(Temp);
+		}
+		
+		Console.Printf("WTF1");
+		
+		Let CVa = CVar.FindCVar("MRMonstC_Pressets");
+		if(!CVa)Return;
+		
+		String PressetList = CVa.GetString();
+		Array<String> Pressets;
+		
+		While(PressetList.Length()>0){
+			Pressets.Push(PressetList.Left(PressetList.IndexOf("}")+1));
+			PressetList = PressetList.Mid(PressetList.IndexOf("}")+1);
+		}
+		
+		For(int i=0;i<Pressets.Size();i++){
+			Console.printf(i.." "..Pressets[i].Left(Pressets[i].IndexOf("{"))..": "..Pressets[i].Mid(Pressets[i].IndexOf("{")));
+		}
+	}
+}
+
+Class OptionMenuItemMRMonstC_NewPresset: OptionMenuFieldBase
+{
+	TextEnterMenu mEnter;
+	OptionMenuItemMRMonstC_NewPresset Init (String label, Name command, CVar graycheck = null, int graycheckVal = 0)
+	{
+		Super.Init(label, command, graycheck, graycheckVal);
+		mEnter = null;
+		return self;
+	}
+	override String Represent()
+	{
+		if (mEnter) return mEnter.GetText() .. Menu.OptionFont().GetCursor();
+		else 
+		{
+			bool b;
+			String s;
+			[b, s] = GetString(0);
+			return s;
+		}
+	}
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		if (mEnter)
+		{
+			// reposition the text so that the cursor is visible when in entering mode.
+			String text = Represent();
+			int tlen = Menu.OptionWidth(text, false) * CleanXfac_1;
+			int newindent = screen.GetWidth() - tlen - CursorSpace();
+			if (newindent < indent) indent = newindent;
+		}
+		return Super.Draw(desc, y, indent, selected);
+	}
+	
+	MRMonstC_PressetsOptionMenu Menue;
+
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		Console.Printf("MenuEvent");
+		if (mkey == Menu.MKEY_Enter)
+		{
+			bool b;
+			String s;
+			[b, s] = GetString(0);
+			Menu.MenuSound("menu/choose");
+			mEnter = TextEnterMenu.OpenTextEnter(Menu.GetCurrentMenu(), Menu.OptionFont(), s, -1, fromcontroller);
+			mEnter.ActivateMenu();
+			return true;
+		}
+		else if (mkey == Menu.MKEY_Input)
+		{
+			Console.Printf("ADDing");
+			AddPresset(mEnter.GetText());
+			mEnter = null;
+			Menue.UpdatePressets();
+			return true;
+		}
+		else if (mkey == Menu.MKEY_Abort)
+		{
+			mEnter = null;
+			return true;
+		}
+		
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+	
+	Void AddPresset(String PresName)
+	{
+		if(PresName.Length()<1)Return;
+		
+		Let Handler = MRMonstC_Handler(StaticEventHandler.Find("MRMonstC_Handler"));
+		if(!Handler)Return;
+		
+		String Presset = PresName.."{";
+		
+		For(int i=0;i<Handler.Lists.Size();i++){
+			Let List = Handler.Lists[i];
+			if(!List.Replaceable)Continue;
+			
+			String Clas = List.Replaceable.GetClassName();
+			if(!CVar.GetCVar("MRMonstC_Replace_"..Clas))Continue;
+			
+			String CVa = CVar.GetCVar("MRMonstC_Replace_"..Clas).GetString();
+			
+			Presset = Presset..Clas.."("..CVa..")";
+		}
+		Presset = Presset.."}";
+		Console.Printf("Presset: "..Presset);
+		Let CVa = CVar.FindCVar("MRMonstC_Pressets");
+		CVa.SetString(CVa.GetString());
+		Console.Printf("Yeto ne cvar");
+	}
+}
+
+Class OptionMenuItemMRMonstC_Presset: OptionMenuItemSubMenu
+{
+}
